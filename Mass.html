@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Mass-Spring Simulation</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    #controls { margin-bottom: 20px; }
+    label { margin-right: 15px; }
+    #simulationCanvas { border: 1px solid #ccc; background: #f9f9f9; }
+    table { border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #000; padding: 5px 10px; text-align: center; }
+    canvas.graph { margin-top: 20px; }
+    #tablesContainer {
+      display: flex;
+      gap: 20px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Mass-Spring Simulation (Enhanced)</h1>
+  
+  <!-- Controls -->
+  <div id="controls">
+    <label>
+      Mass (kg):
+      <input type="number" id="mass" value="1" step="0.1">
+    </label>
+    <label>
+      Spring Constant (N/m):
+      <input type="number" id="springConstant" value="10" step="1">
+    </label>
+    <label>
+      Displacement (m):
+      <input type="number" id="displacement" value="1" step="0.1">
+    </label>
+    <button id="reset">Reset Simulation</button>
+    <button id="playPause">Pause</button>
+  </div>
+  
+  <!-- Canvas for drawing simulation -->
+  <canvas id="simulationCanvas" width="600" height="200"></canvas>
+  
+  <!-- Tables container: Simulation Data and Oscillation Characteristics -->
+  <div id="tablesContainer">
+    <!-- Data Table -->
+    <div>
+      <h2>Data Table (One Oscillation)</h2>
+      <table id="dataTable">
+        <thead>
+          <tr>
+            <th>Time (s)</th>
+            <th>Position (m)</th>
+            <th>Velocity (m/s)</th>
+            <th>Acceleration (m/s²)</th>
+            <th>Force (N)</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <!-- Period & Frequency Table -->
+    <div>
+      <h2>Oscillation Characteristics</h2>
+      <table id="oscillationTable">
+        <thead>
+          <tr>
+            <th>Period (s)</th>
+            <th>Frequency (Hz)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td id="periodValue">--</td>
+            <td id="frequencyValue">--</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  
+  <!-- Graphs for position, velocity, acceleration -->
+  <div>
+    <h2>Graphs (One Oscillation)</h2>
+    <canvas id="positionChart" class="graph" width="400" height="200"></canvas>
+    <canvas id="velocityChart" class="graph" width="400" height="200"></canvas>
+    <canvas id="accelerationChart" class="graph" width="400" height="200"></canvas>
+  </div>
+  
+  <!-- Include Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    // --- Simulation Parameters ---
+    let mass = parseFloat(document.getElementById('mass').value);
+    let k = parseFloat(document.getElementById('springConstant').value);
+    let dispInput = parseFloat(document.getElementById('displacement').value); // in meters
+    
+    const originX = 300;  // equilibrium x-coordinate on canvas
+    const originY = 100;
+    const pixelToMeter = 0.01; // 100 pixels = 1 meter
+    // amplitude in pixels computed from the displacement input
+    let amplitudeInPixels = Math.abs(dispInput) / pixelToMeter;
+    // initial mass position set based on displacement input (to the right if positive)
+    let x = originX + amplitudeInPixels;
+    let v = 0;
+    let a = 0;
+    let time = 0;
+    const dt = 0.02;  // time step
+    
+    let isPlaying = true;    // play/pause flag
+    let recording = true;    // record data for one complete oscillation
+    const tolerance = 2;     // tolerance in pixels for detecting oscillation completion
+    let initialX = x;        // used to detect when an oscillation is complete
+    
+    // Data arrays for charts and data table
+    let timeData = [];
+    let positionData = [];
+    let velocityData = [];
+    let accelerationData = [];
+    
+    // Get canvas and context for drawing
+    const canvas = document.getElementById('simulationCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Initialize Chart.js graphs
+    const positionChart = new Chart(document.getElementById('positionChart').getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: timeData,
+        datasets: [{
+          label: 'Position (m)',
+          data: positionData,
+          borderColor: 'blue',
+          fill: false
+        }]
+      },
+      options: {
+        scales: {
+          x: { title: { display: true, text: 'Time (s)' } },
+          y: { title: { display: true, text: 'Position (m)' } }
+        }
+      }
+    });
+    
+    const velocityChart = new Chart(document.getElementById('velocityChart').getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: timeData,
+        datasets: [{
+          label: 'Velocity (m/s)',
+          data: velocityData,
+          borderColor: 'green',
+          fill: false
+        }]
+      },
+      options: {
+        scales: {
+          x: { title: { display: true, text: 'Time (s)' } },
+          y: { title: { display: true, text: 'Velocity (m/s)' } }
+        }
+      }
+    });
+    
+    const accelerationChart = new Chart(document.getElementById('accelerationChart').getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: timeData,
+        datasets: [{
+          label: 'Acceleration (m/s²)',
+          data: accelerationData,
+          borderColor: 'red',
+          fill: false
+        }]
+      },
+      options: {
+        scales: {
+          x: { title: { display: true, text: 'Time (s)' } },
+          y: { title: { display: true, text: 'Acceleration (m/s²)' } }
+        }
+      }
+    });
+    
+    // References to table cells for period and frequency
+    const dataTableBody = document.getElementById('dataTable').querySelector('tbody');
+    const periodValueCell = document.getElementById('periodValue');
+    const frequencyValueCell = document.getElementById('frequencyValue');
+    
+    // --- Drawing Functions ---
+    
+    // Draw a zigzag spring between two x-coordinates at the baseY level
+    function drawSpring(startX, endX, baseY) {
+      const coilCount = 10;
+      const coilAmplitude = 10; // amplitude of coils in pixels
+      const totalLength = endX - startX;
+      const segments = coilCount * 2;
+      const segmentLength = totalLength / segments;
+      
+      ctx.beginPath();
+      ctx.moveTo(startX, baseY);
+      for (let i = 1; i <= segments; i++) {
+        let xi = startX + i * segmentLength;
+        // Alternate the vertical offset for a zigzag effect
+        let yi = (i % 2 === 1) ? (baseY - coilAmplitude) : (baseY + coilAmplitude);
+        ctx.lineTo(xi, yi);
+      }
+      ctx.strokeStyle = 'black';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+    
+    // Draw the equilibrium line and amplitude labels
+    function drawEquilibriumAndLabels() {
+      // Draw a dashed line at equilibrium (originX)
+      ctx.beginPath();
+      ctx.setLineDash([5, 5]);
+      ctx.moveTo(originX, 0);
+      ctx.lineTo(originX, canvas.height);
+      ctx.strokeStyle = 'gray';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      ctx.setLineDash([]);
+      
+      // Label the equilibrium line at the top of the canvas
+      ctx.font = '14px Arial';
+      ctx.fillStyle = 'black';
+      ctx.textAlign = 'center';
+      ctx.fillText('Equilibrium', originX, 15);
+      
+      // Draw amplitude labels based on the chosen displacement (A)
+      ctx.fillText('A', originX + amplitudeInPixels, originY - 25);
+      ctx.fillText('-A', originX - amplitudeInPixels, originY - 25);
+    }
+    
+    // Main drawing function: draws the spring, mass, equilibrium line, and amplitude markers
+    function drawSimulation() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawEquilibriumAndLabels();
+      
+      // Draw the spring as a zigzag line
+      if (x >= originX) {
+        drawSpring(originX, x, originY);
+      } else {
+        drawSpring(x, originX, originY);
+      }
+      
+      // Draw the mass as a rectangle
+      ctx.fillStyle = 'orange';
+      ctx.fillRect(x - 20, originY - 20, 40, 40);
+    }
+    
+    // --- Simulation Loop ---
+    function updateSimulation() {
+      if (isPlaying) {
+        if (recording) {
+          // Convert x (in pixels) to displacement in meters from equilibrium
+          const xMeter = (x - originX) * pixelToMeter;
+          // Calculate force using Hooke's Law: F = -k * x
+          const force = -k * xMeter;
+          // Calculate acceleration: a = F/m
+          a = force / mass;
+          // Update velocity and position (Euler integration)
+          v += a * dt;
+          x += (v * dt) / pixelToMeter;  // converting velocity from m/s to pixels/s
+          time += dt;
+          
+          // Record simulation data
+          timeData.push(time.toFixed(2));
+          positionData.push(xMeter.toFixed(2));
+          velocityData.push(v.toFixed(2));
+          accelerationData.push(a.toFixed(2));
+          
+          const row = document.createElement('tr');
+          row.innerHTML = '<td>' + time.toFixed(2) + '</td>' +
+                          '<td>' + xMeter.toFixed(2) + '</td>' +
+                          '<td>' + v.toFixed(2) + '</td>' +
+                          '<td>' + a.toFixed(2) + '</td>' +
+                          '<td>' + force.toFixed(2) + '</td>';
+          dataTableBody.appendChild(row);
+          
+          // Check if one oscillation is complete: when the mass returns near its starting position (within tolerance)
+          // and is moving to the right (v > 0), after an elapsed time.
+          if (time > dt && Math.abs(x - initialX) < tolerance && v > 0) {
+            recording = false;
+            isPlaying = false;
+            document.getElementById('playPause').textContent = 'Play';
+            // Compute period and frequency from the recorded oscillation
+            const period = time;
+            const frequency = period > 0 ? (1 / period).toFixed(2) : '--';
+            periodValueCell.textContent = period.toFixed(2);
+            frequencyValueCell.textContent = frequency;
+          }
+          
+          // Update the graphs
+          positionChart.update();
+          velocityChart.update();
+          accelerationChart.update();
+        }
+      }
+      
+      drawSimulation();
+      requestAnimationFrame(updateSimulation);
+    }
+    
+    // --- Mouse Interaction for Dragging the Mass ---
+    let isDragging = false;
+    canvas.addEventListener('mousedown', function(e) {
+      const rect = canvas.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+      // Check if the mouse is within the mass rectangle
+      if (mouseX >= x - 20 && mouseX <= x + 20 && mouseY >= originY - 20 && mouseY <= originY + 20) {
+        isDragging = true;
+      }
+    });
+    
+    canvas.addEventListener('mousemove', function(e) {
+      if (isDragging) {
+        const rect = canvas.getBoundingClientRect();
+        x = e.clientX - rect.left;
+        v = 0;
+        // Reset simulation data when dragging the mass
+        time = 0;
+        recording = true;
+        initialX = x;
+        timeData.length = 0;
+        positionData.length = 0;
+        velocityData.length = 0;
+        accelerationData.length = 0;
+        dataTableBody.innerHTML = '';
+        periodValueCell.textContent = '--';
+        frequencyValueCell.textContent = '--';
+      }
+    });
+    
+    canvas.addEventListener('mouseup', function() {
+      isDragging = false;
+    });
+    
+    // --- Play/Pause Button ---
+    document.getElementById('playPause').addEventListener('click', function() {
+      isPlaying = !isPlaying;
+      this.textContent = isPlaying ? 'Pause' : 'Play';
+    });
+    
+    // --- Reset Button ---
+    document.getElementById('reset').addEventListener('click', function() {
+      mass = parseFloat(document.getElementById('mass').value);
+      k = parseFloat(document.getElementById('springConstant').value);
+      dispInput = parseFloat(document.getElementById('displacement').value);
+      
+      amplitudeInPixels = Math.abs(dispInput) / pixelToMeter;
+      x = originX + amplitudeInPixels;
+      v = 0;
+      a = 0;
+      time = 0;
+      recording = true;
+      isPlaying = true;
+      document.getElementById('playPause').textContent = 'Pause';
+      initialX = x;
+      
+      timeData.length = 0;
+      positionData.length = 0;
+      velocityData.length = 0;
+      accelerationData.length = 0;
+      dataTableBody.innerHTML = '';
+      
+      periodValueCell.textContent = '--';
+      frequencyValueCell.textContent = '--';
+      
+      // Clear chart datasets
+      positionChart.data.labels = timeData;
+      positionChart.data.datasets[0].data = positionData;
+      velocityChart.data.labels = timeData;
+      velocityChart.data.datasets[0].data = velocityData;
+      accelerationChart.data.labels = timeData;
+      accelerationChart.data.datasets[0].data = accelerationData;
+    });
+    
+    // Start the simulation loop
+    updateSimulation();
+  </script>
+</body>
+</html>
