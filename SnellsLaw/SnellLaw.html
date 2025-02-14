@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Snell's Law Simulation</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .controls { margin-bottom: 20px; }
+    .controls input, .controls select { margin: 5px; }
+    canvas { border: 1px solid #ccc; display: block; margin-top: 20px; }
+    table, th, td { border: 1px solid #ccc; border-collapse: collapse; padding: 5px; }
+    table { margin-top: 20px; }
+    .slider-container { margin: 5px 0; }
+    .slider-label { margin-right: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Snell's Law Simulation</h1>
+  <div class="controls">
+    <label for="numMediums">Number of Mediums: </label>
+    <select id="numMediums">
+      <option value="1">1</option>
+      <option value="2" selected>2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+    </select>
+    <br>
+    <div id="mediumInputs"></div>
+    <br>
+    <label for="incidentAngle">Incident Angle (° from normal): </label>
+    <input type="number" id="incidentAngle" value="30" min="0" max="90">
+    <br>
+    <fieldset style="display:inline-block; margin:10px 0;">
+      <legend>Wavelength Option</legend>
+      <input type="radio" name="wavelengthOption" id="wavelengthRadio" value="wavelength" checked>
+      <label for="wavelengthRadio">Enter Wavelength (nm)</label>
+      <input type="radio" name="wavelengthOption" id="colorRadio" value="color">
+      <label for="colorRadio">Select Color</label>
+      <br>
+      <div id="wavelengthInputDiv">
+        <input type="number" id="wavelengthInput" value="650" min="380" max="750">
+      </div>
+      <div id="colorSelectDiv" style="display:none;">
+        <select id="colorSelect">
+          <option value="650">Red (650 nm)</option>
+          <option value="600">Orange (600 nm)</option>
+          <option value="580">Yellow (580 nm)</option>
+          <option value="550">Green (550 nm)</option>
+          <option value="470">Blue (470 nm)</option>
+          <option value="445">Indigo (445 nm)</option>
+          <option value="400">Violet (400 nm)</option>
+        </select>
+      </div>
+    </fieldset>
+    <br>
+    <input type="checkbox" id="showCritical">
+    <label for="showCritical">Show Critical Angle (if applicable)</label>
+  </div>
+
+  <canvas id="simulationCanvas" width="800" height="400"></canvas>
+
+  <table id="dataTable">
+    <thead>
+      <tr>
+        <th>Medium</th>
+        <th>Effective n</th>
+        <th>Speed (m/s)</th>
+        <th>Ray Angle (° from normal)</th>
+        <th>Wavelength in Medium (nm)</th>
+        <th>Frequency (Hz)</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <table id="interfaceTable">
+    <thead>
+      <tr>
+        <th>Medium #</th>
+        <th>Incident Angle (°)</th>
+        <th>Refracted Angle (°)</th>
+        <th>Exit Angle (°)</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <!-- Include the external JavaScript file -->
+  <script src="snell.js"></script>
+</body>
+</html>
