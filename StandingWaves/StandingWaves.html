@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Standing Waves in a Pipe Simulation</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
+    <style>
+      body { font-family: sans-serif; }
+      .controls { margin-bottom: 10px; }
+      .control-group { margin: 5px 0; }
+    </style>
+  </head>
+  <body>
+    <div class="controls">
+      <div class="control-group">
+        Pipe Length (m): 
+        <input type="range" id="pipeLengthSlider" min="0.5" max="5" step="0.1" value="1">
+        <span id="pipeLengthDisplay">1.0</span> m
+      </div>
+      <div class="control-group">
+        Harmonic:
+        <input type="range" id="harmonicSlider" min="1" max="5" step="1" value="1">
+        <span id="harmonicDisplay">1</span>
+      </div>
+      <div class="control-group">
+        Frequency (Hz):
+        <input type="range" id="freqSlider" min="30" max="2000" step="1" value="171">
+        <span id="freqDisplay">171</span> Hz
+      </div>
+      <div class="control-group">
+        Wavelength (m):
+        <input type="range" id="wavelengthSlider" min="0.1" max="12" step="0.01" value="2">
+        <span id="wavelengthDisplay">2.00</span> m
+      </div>
+      <div class="control-group">
+        Pipe Type:
+        <select id="pipeSelect">
+          <option value="open-open">Open at Both Ends</option>
+          <option value="closed-open">Closed at One End</option>
+          <option value="closed-closed">Closed at Both Ends</option>
+        </select>
+      </div>
+    </div>
+    <script src="sketchpipe.js"></script>
+  </body>
+</html>
