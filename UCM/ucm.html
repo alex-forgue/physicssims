@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Uniform Circular Motion Simulation</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    #controls { margin-bottom: 20px; }
+    canvas { border: 1px solid #ccc; display: block; margin-bottom: 20px; }
+    /* Remove float; data tables will be arranged by flex */
+    #dataTables table { border: 1px solid #000; border-collapse: collapse; margin: 0 0 20px 0; }
+    #dataTables th, #dataTables td { border: 1px solid #000; padding: 5px; text-align: center; }
+    label { margin-right: 15px; }
+    #experimentDesign { margin-top: 20px; }
+    /* Container to hold canvas and data tables side-by-side */
+    #simContainer { display: flex; gap: 20px; align-items: flex-start; }
+    /* Data tables arranged vertically */
+    #dataTables { display: flex; flex-direction: column; }
+  </style>
+</head>
+<body>
+  <h1>Uniform Circular Motion Simulation</h1>
+  <div id="controls">
+    <label>Radius (m):
+      <input type="number" id="radius" value="100" min="10">
+    </label>
+    <label>Velocity (m/s):
+      <input type="number" id="speed" value="50" min="1">
+    </label>
+    <label>Mass (kg):
+      <input type="number" id="mass" value="1" min="0.1" step="0.1">
+    </label>
+    <label>Force (N):
+      <input type="number" id="force" value="25" min="0" step="0.1">
+    </label>
+    <br>
+    <label>
+      Friction:
+      <input type="checkbox" id="frictionToggle">
+    </label>
+    <label>Coefficient of Friction (µ):
+      <input type="number" id="friction" value="0.1" min="0" max="0.99" step="0.01">
+    </label>
+    <br>
+    <label>
+      Show Velocity Vector:
+      <input type="checkbox" id="vectorToggle" checked>
+    </label>
+    <label>
+      Show Acceleration Vector:
+      <input type="checkbox" id="accelerationToggle" checked>
+    </label>
+    <label>
+      Pause:
+      <input type="checkbox" id="pauseToggle">
+    </label>
+    <br>
+    <label>
+      <input type="checkbox" id="experimentToggle" checked>
+      Enable Experimental Design
+    </label>
+  </div>
+
+  <!-- Experimental Design Section -->
+  <div id="experimentDesign">
+    <h2>Experimental Design</h2>
+    <div style="display: flex; gap: 20px;">
+      <div id="ivColumn">
+        <h3>Independent Variable</h3>
+        <label><input type="radio" name="ivGroup" value="mass"> Mass</label><br>
+        <label><input type="radio" name="ivGroup" value="velocity" checked> Velocity</label><br>
+        <label><input type="radio" name="ivGroup" value="force"> Force</label><br>
+        <label><input type="radio" name="ivGroup" value="radius"> Radius</label><br>
+        <label><input type="radio" name="ivGroup" value="friction"> Coefficient of Friction</label>
+      </div>
+      <div id="dvColumn">
+        <h3>Dependent Variable</h3>
+        <label><input type="radio" name="dvGroup" value="mass"> Mass</label><br>
+        <label><input type="radio" name="dvGroup" value="velocity"> Velocity</label><br>
+        <label><input type="radio" name="dvGroup" value="force" checked> Force</label><br>
+        <label><input type="radio" name="dvGroup" value="radius"> Radius</label><br>
+        <label><input type="radio" name="dvGroup" value="friction"> Coefficient of Friction</label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Container for simulation canvas and data tables -->
+  <div id="simContainer">
+    <canvas id="simCanvas" width="600" height="600"></canvas>
+
+    <div id="dataTables">
+      <table id="dataTable1">
+        <tr>
+          <th>Parameter</th>
+          <th>Value</th>
+        </tr>
+        <tr>
+          <td>Velocity (m/s)</td>
+          <td id="dataSpeed">50.00</td>
+        </tr>
+        <tr>
+          <td>Centripetal Acceleration (m/s²)</td>
+          <td id="dataAcceleration">25.00</td>
+        </tr>
+        <tr>
+          <td>Centripetal Force (N)</td>
+          <td id="dataForce">25.00</td>
+        </tr>
+        <tr>
+          <td>Mass (kg)</td>
+          <td id="dataMass">1.00</td>
+        </tr>
+        <tr>
+          <td>Friction Coefficient</td>
+          <td id="dataFriction">0.10</td>
+        </tr>
+        <tr>
+          <td>Friction Force (N)</td>
+          <td id="dataFrictionForce">0.00</td>
+        </tr>
+      </table>
+
+      <table id="dataTable2">
+        <tr>
+          <th>Parameter</th>
+          <th>Value</th>
+        </tr>
+        <tr>
+          <td>Angular Velocity (rad/s)</td>
+          <td id="dataAngularVelocity">0.50</td>
+        </tr>
+        <tr>
+          <td>Period (s)</td>
+          <td id="dataPeriod">12.57</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Link to the external JavaScript file -->
+  <script src="ucm.js"></script>
+</body>
+</html>
