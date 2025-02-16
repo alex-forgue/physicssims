@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Wave Superposition Simulation</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 20px;
+    }
+    .container {
+      display: flex;
+    }
+    .control-panel {
+      width: 300px;
+      margin-right: 20px;
+    }
+    .control-panel h2 {
+      margin-top: 0;
+    }
+    .control-panel label {
+      display: block;
+      margin: 10px 0 5px;
+    }
+    .control-panel .slider-group {
+      margin-bottom: 15px;
+    }
+    .canvas-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 400px);
+      grid-gap: 20px;
+    }
+    .graph-container {
+      text-align: center;
+    }
+    .graph-container h3 {
+      margin-bottom: 5px;
+    }
+    canvas {
+      border: 1px solid #ccc;
+      background-color: #f9f9f9;
+      cursor: crosshair;
+      display: block;
+      margin: 0 auto;
+    }
+    table {
+      margin-top: 20px;
+      border-collapse: collapse;
+      width: 100%;
+    }
+    table, th, td {
+      border: 1px solid #ccc;
+    }
+    th, td {
+      padding: 5px;
+      text-align: left;
+    }
+    #infoPanel {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+    /* Make the Wave A sliders red */
+    input.red-slider {
+      accent-color: red;
+    }
+  </style>
+</head>
+<body>
+  <h1>Wave Superposition Simulation</h1>
+  <div class="container">
+    <div class="control-panel">
+      <h2>Control Panel</h2>
+      <!-- Wave A Controls -->
+      <div class="slider-group">
+        <h3>Wave A (Red)</h3>
+        <label for="sliderWaveA_amp">Amplitude:</label>
+        <input type="range" id="sliderWaveA_amp" class="red-slider" min="0" max="5" step="0.1" value="1">
+        <span id="waveA_amp_val">1.00</span>
+        <label for="sliderWaveA_freq">Frequency (Hz):</label>
+        <input type="range" id="sliderWaveA_freq" class="red-slider" min="0.5" max="10" step="0.1" value="2">
+        <span id="waveA_freq_val">2.00</span>
+      </div>
+      <!-- Wave B Controls -->
+      <div class="slider-group">
+        <h3>Wave B (Blue)</h3>
+        <label for="sliderWaveB_amp">Amplitude:</label>
+        <input type="range" id="sliderWaveB_amp" min="0" max="5" step="0.1" value="1">
+        <span id="waveB_amp_val">1.00</span>
+        <label for="sliderWaveB_freq">Frequency (Hz):</label>
+        <input type="range" id="sliderWaveB_freq" min="0.5" max="10" step="0.1" value="3">
+        <span id="waveB_freq_val">3.00</span>
+      </div>
+      <!-- Phase Difference Control -->
+      <div class="slider-group">
+        <h3>Phase Difference</h3>
+        <label for="phaseDiffSelect">Wave B relative to Wave A:</label>
+        <select id="phaseDiffSelect">
+          <option value="0">0°</option>
+          <option value="45">45°</option>
+          <option value="90">90°</option>
+          <option value="180">180°</option>
+          <option value="270">270°</option>
+        </select>
+      </div>
+      <!-- Show Time Toggle -->
+      <div class="slider-group">
+        <h3>Graph Options</h3>
+        <label>
+          <input type="checkbox" id="showTimeCheckbox">
+          Show Time on X-axis
+        </label>
+      </div>
+      <!-- Pause/Resume Button -->
+      <button id="pauseButton">Pause</button>
+      
+      <!-- Data Table -->
+      <table>
+        <thead>
+          <tr>
+            <th>Parameter</th>
+            <th>Wave A</th>
+            <th>Wave B</th>
+            <th>Resultant</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Amplitude</td>
+            <td id="ampA">1.00</td>
+            <td id="ampB">1.00</td>
+            <td id="ampR">?</td>
+          </tr>
+          <tr>
+            <td>Frequency (Hz)</td>
+            <td id="freqA">2.00</td>
+            <td id="freqB">3.00</td>
+            <td id="freqR">?</td>
+          </tr>
+          <tr>
+            <td>Wavelength (m)</td>
+            <td id="lambdaA">500.00</td>
+            <td id="lambdaB">333.33</td>
+            <td id="lambdaR">?</td>
+          </tr>
+          <tr>
+            <td>Period (s)</td>
+            <td id="periodA">0.50</td>
+            <td id="periodB">0.33</td>
+            <td id="periodR">?</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- Canvas Grid with external titles -->
+    <div class="canvas-grid">
+      <div class="graph-container">
+        <h3>Wave A (Red)</h3>
+        <canvas id="canvasA" width="400" height="200"></canvas>
+      </div>
+      <div class="graph-container">
+        <h3>Wave B (Blue)</h3>
+        <canvas id="canvasB" width="400" height="200"></canvas>
+      </div>
+      <div class="graph-container">
+        <h3>Stacked Waves (Red & Blue)</h3>
+        <canvas id="canvasAnim" width="400" height="200"></canvas>
+      </div>
+      <div class="graph-container">
+        <h3>Resultant Wave</h3>
+        <canvas id="canvasResult" width="400" height="200"></canvas>
+      </div>
+    </div>
+  </div>
+  <!-- Info Panel for mouse data -->
+  <div id="infoPanel"></div>
+
+  <script src="superpos.js"></script>
+</body>
+</html>
