@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Atwood Machine Simulation</title>
+  <style>
+    body {
+      display: flex;
+      font-family: Arial, sans-serif;
+      margin: 0;
+    }
+    /* Control Panel on the left */
+    #controlPanel {
+      width: 300px;
+      padding: 20px;
+      background: #f4f4f4;
+      border-right: 2px solid #ddd;
+    }
+    /* Slider container colors match the masses */
+    .slider-container {
+      margin-bottom: 20px;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    .slider-massA { background-color: #ffdddd; }
+    .slider-massB { background-color: #ddffdd; }
+    .slider-gravity { background-color: #ddddff; }
+    #controlPanel input[type=range] {
+      width: 100%;
+    }
+    #dataTables {
+      margin-top: 20px;
+    }
+    /* Simulation area on the right */
+    #simulationArea {
+      flex: 1;
+      background: #eaeaea;
+      position: relative;
+    }
+    #simCanvas {
+      display: block;
+      margin: auto;
+      background: #fff;
+      border: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+  <div id="controlPanel">
+    <h2>Controls</h2>
+    <div class="slider-container slider-massA">
+      <label for="massA">Mass A (kg): <span id="massAValue">5</span></label>
+      <input type="range" id="massA" min="1" max="20" value="5">
+    </div>
+    <div class="slider-container slider-massB">
+      <label for="massB">Mass B (kg): <span id="massBValue">8</span></label>
+      <input type="range" id="massB" min="1" max="20" value="8">
+    </div>
+    <div class="slider-container slider-gravity">
+      <label for="gravity">Gravity (m/s²): <span id="gravityValue">9.8</span></label>
+      <input type="range" id="gravity" min="1" max="20" step="0.1" value="9.8">
+    </div>
+    <div>
+      <input type="checkbox" id="showVectors">
+      <label for="showVectors">Show force vectors</label>
+    </div>
+    <button id="startSim">Start Simulation</button>
+    
+    <div id="dataTables">
+      <h3>Data</h3>
+      <table border="1" cellpadding="5" cellspacing="0">
+        <tr>
+          <th>Parameter</th>
+          <th>Value</th>
+        </tr>
+        <!-- With up as positive -->
+        <tr>
+          <td>Acceleration A (m/s²)</td>
+          <td id="accelerationAData">0</td>
+        </tr>
+        <tr>
+          <td>Acceleration B (m/s²)</td>
+          <td id="accelerationBData">0</td>
+        </tr>
+        <tr>
+          <td>Net Force A (N)</td>
+          <td id="netForceAData">0</td>
+        </tr>
+        <tr>
+          <td>Net Force B (N)</td>
+          <td id="netForceBData">0</td>
+        </tr>
+        <tr>
+          <td>Tension (N)</td>
+          <td id="tensionData">0</td>
+        </tr>
+        <tr>
+          <td>Weight A (N)</td>
+          <td id="weightAData">0</td>
+        </tr>
+        <tr>
+          <td>Weight B (N)</td>
+          <td id="weightBData">0</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+  
+  <div id="simulationArea">
+    <canvas id="simCanvas" width="600" height="400"></canvas>
+  </div>
+  
+  <script src="atwood.js"></script>
+</body>
+</html>
