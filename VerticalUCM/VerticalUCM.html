@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Vertical Circle Simulation</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #fff;
+      color: #000;
+    }
+    .container {
+      display: flex;
+      height: 100vh;
+    }
+    /* Left column: Control Panel */
+    #controlPanel {
+      width: 320px;
+      padding: 20px;
+      border-right: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+    /* Center column: Simulation */
+    #simulationContainer {
+      flex: 1;
+      padding: 20px;
+      box-sizing: border-box;
+      text-align: center;
+    }
+    /* Right column: Experimental Design Data Table */
+    #dataTableContainer {
+      width: 320px;
+      padding: 20px;
+      border-left: 1px solid #ccc;
+      box-sizing: border-box;
+      display: none;
+    }
+    canvas {
+      background-color: #f0f0f0;
+      border: 1px solid #ccc;
+      display: block;
+      margin: 0 auto;
+    }
+    /* Tension Table (below canvas) */
+    #tensionTableContainer {
+      margin-top: 20px;
+      width: 90%;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+    }
+    .sliderContainer {
+      margin-top: 5px;
+    }
+    .sliderContainer input[type="range"] {
+      width: 100%;
+    }
+    .expSection {
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin-top: 10px;
+    }
+    /* Error message styling */
+    #errorMessage {
+      color: red;
+      background-color: yellow;
+      padding: 5px;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    /* Slider accent colors */
+    input[type="range"]#massInput,
+    input[type="range"]#massExp {
+      accent-color: blue;
+    }
+    input[type="range"]#velocityInput,
+    input[type="range"]#velocityExp {
+      accent-color: green;
+    }
+    input[type="range"]#radiusInput,
+    input[type="range"]#radiusExp {
+      accent-color: orange;
+    }
+    input[type="range"]#tensionExp {
+      accent-color: purple;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Left: Control Panel -->
+    <div id="controlPanel">
+      <h2>Control Panel</h2>
+      <div id="normalControls">
+        <label>Mass (kg): <span id="massValue">1.00</span></label>
+        <div class="sliderContainer">
+          <input type="range" id="massInput" min="0.1" max="10" step="0.1" value="1">
+        </div>
+        <label>Velocity (m/s): <span id="velocityValue">5.00</span></label>
+        <div class="sliderContainer">
+          <input type="range" id="velocityInput" min="0.1" max="20" step="0.1" value="5">
+        </div>
+        <label>Radius (m): <span id="radiusValue">2.00</span></label>
+        <div class="sliderContainer">
+          <input type="range" id="radiusInput" min="0.5" max="10" step="0.1" value="2">
+        </div>
+      </div>
+      <label style="margin-top:20px;">
+        <input type="checkbox" id="expDesignCheck"> Experimental Design Mode
+      </label>
+      <div id="expDesignPanel" class="expSection" style="display:none;">
+        <h3>Experimental Design</h3>
+        <label for="ivExpSelect">Select IV:</label>
+        <select id="ivExpSelect">
+          <option value="mass" selected>Mass</option>
+          <option value="velocity">Velocity</option>
+          <option value="radius">Radius</option>
+          <option value="tension">Tension</option>
+        </select>
+        <label for="dvExpSelect">Select DV:</label>
+        <select id="dvExpSelect">
+          <!-- For example, try Mass→Velocity, Mass→Radius, or combinations with tension -->
+          <option value="mass">Mass</option>
+          <option value="velocity" selected>Velocity</option>
+          <option value="radius">Radius</option>
+          <option value="tension">Tension</option>
+        </select>
+        <!-- All four sliders are shown; the DV slider is disabled -->
+        <label>Mass (kg): <span id="massExpValue">1.00</span></label>
+        <div class="sliderContainer">
+          <input type="range" id="massExp" min="0.1" max="10" step="0.1" value="1">
+        </div>
+        <label>Velocity (m/s): <span id="velocityExpValue">5.00</span></label>
+        <div class="sliderContainer">
+          <input type="range" id="velocityExp" min="0.1" max="20" step="0.1" value="5">
+        </div>
+        <label>Radius (m): <span id="radiusExpValue">2.00</span></label>
+        <div class="sliderContainer">
+          <input type="range" id="radiusExp" min="0.5" max="10" step="0.1" value="2">
+        </div>
+        <label>Tension (N): <span id="tensionExpValue">150.00</span></label>
+        <div class="sliderContainer">
+          <input type="range" id="tensionExp" min="0" max="200" step="0.1" value="150">
+        </div>
+        <p>
+          For example, if IV = Mass and DV = Velocity, then the computed velocity is:<br>
+          v = √[ r · (T - m·g) / m ]<br>
+          and if IV = Mass and DV = Tension, then<br>
+          T = m·(v²)/r + m·g.<br>
+          Other pairs are computed similarly.
+        </p>
+      </div>
+      <p id="errorMessage"></p>
+    </div>
+    <!-- Center: Simulation -->
+    <div id="simulationContainer">
+      <canvas id="simulationCanvas" width="500" height="500"></canvas>
+      <div id="tensionTableContainer">
+        <h3>Tension Values</h3>
+        <table id="tensionTable">
+          <tr>
+            <th>Position</th>
+            <th>Tension (N)</th>
+          </tr>
+          <tr>
+            <td>Top</td>
+            <td id="tensionTop">0.00</td>
+          </tr>
+          <tr>
+            <td>Bottom</td>
+            <td id="tensionBottom">0.00</td>
+          </tr>
+          <tr>
+            <td>Right</td>
+            <td id="tensionRight">0.00</td>
+          </tr>
+          <tr>
+            <td>Left</td>
+            <td id="tensionLeft">0.00</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <!-- Right: Data Table for Experimental Design -->
+    <div id="dataTableContainer">
+      <h3>Data Points</h3>
+      <table id="expDataTable">
+        <thead>
+          <tr>
+            <th id="ivHeader">IV</th>
+            <th id="dvHeader">DV</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+  <script src="vertical.js"></script>
+</body>
+</html>
