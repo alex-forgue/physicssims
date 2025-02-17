@@ -2,44 +2,101 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>Standing Waves in a Pipe Simulation</title>
+    <title>Standing Waves in a Pipe</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
     <style>
-      body { font-family: sans-serif; }
-      .controls { margin-bottom: 10px; }
-      .control-group { margin: 5px 0; }
+      body {
+        font-family: sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+      /* Flex container: controls on left, canvas on right */
+      #container {
+        display: flex;
+        height: 100vh;
+      }
+      #controls {
+        width: 250px;
+        padding: 15px;
+        background: #f0f0f0;
+        box-sizing: border-box;
+        border-right: 1px solid #ccc;
+      }
+      .control-group {
+        margin-bottom: 15px;
+      }
+      /* Different accent colors for the sliders */
+      #pipeLengthSlider { accent-color: #ff6666; }
+      #harmonicSlider { accent-color: #66cc66; }
+      #freqSlider { accent-color: #6699ff; }
+      #wavelengthSlider { accent-color: #ffcc66; }
+      #speedSlider { accent-color: #66ffff; }
+      #canvasContainer {
+        flex-grow: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: #fff;
+      }
+      button {
+        padding: 8px 12px;
+        font-size: 14px;
+      }
     </style>
   </head>
   <body>
-    <div class="controls">
-      <div class="control-group">
-        Pipe Length (m): 
-        <input type="range" id="pipeLengthSlider" min="0.5" max="5" step="0.1" value="1">
-        <span id="pipeLengthDisplay">1.0</span> m
+    <div id="container">
+      <div id="controls">
+        <div class="control-group">
+          <label>Pipe Length (m):</label><br>
+          <input type="range" id="pipeLengthSlider" min="0.5" max="5" step="0.1" value="3">
+          <span id="pipeLengthDisplay">3.0</span> m
+        </div>
+        <div class="control-group">
+          <label>Harmonic:</label><br>
+          <input type="range" id="harmonicSlider" min="1" max="5" step="1" value="1">
+          <span id="harmonicDisplay">1</span>
+        </div>
+        <div class="control-group">
+          <label>Frequency (Hz):</label><br>
+          <input type="range" id="freqSlider" min="30" max="2000" step="1" value="171">
+          <span id="freqDisplay">171</span> Hz
+        </div>
+        <div class="control-group">
+          <label>Wavelength (m):</label><br>
+          <input type="range" id="wavelengthSlider" min="0.1" max="12" step="0.01" value="2">
+          <span id="wavelengthDisplay">2.00</span> m
+        </div>
+        <div class="control-group">
+          <label>Pipe Type:</label><br>
+          <select id="pipeSelect">
+            <option value="open-open">Open at Both Ends</option>
+            <option value="closed-open">Closed at One End</option>
+            <option value="closed-closed">Closed at Both Ends</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label>Animaton Speed:</label><br>
+          <!-- Range from 0.1 (very slow) to 1 (normal speed) -->
+          <input type="range" id="speedSlider" min="0.1" max="1" step="0.1" value="1">
+          <span id="speedDisplay">1.0</span> x
+        </div>
+        <div class="control-group">
+          <input type="checkbox" id="halfWaveCheckbox">
+          <label for="halfWaveCheckbox">Show Half-Wave length</label>
+        </div>
+        <div class="control-group">
+          <input type="checkbox" id="fullWaveCheckbox">
+          <label for="fullWaveCheckbox">Show Full-Wavelength</label>
+        </div>
+        <div class="control-group">
+          <button id="markersButton">Show Length Markers</button>
+        </div>
+        <div class="control-group">
+          <button id="pauseButton">Pause</button>
+        </div>
       </div>
-      <div class="control-group">
-        Harmonic:
-        <input type="range" id="harmonicSlider" min="1" max="5" step="1" value="1">
-        <span id="harmonicDisplay">1</span>
-      </div>
-      <div class="control-group">
-        Frequency (Hz):
-        <input type="range" id="freqSlider" min="30" max="2000" step="1" value="171">
-        <span id="freqDisplay">171</span> Hz
-      </div>
-      <div class="control-group">
-        Wavelength (m):
-        <input type="range" id="wavelengthSlider" min="0.1" max="12" step="0.01" value="2">
-        <span id="wavelengthDisplay">2.00</span> m
-      </div>
-      <div class="control-group">
-        Pipe Type:
-        <select id="pipeSelect">
-          <option value="open-open">Open at Both Ends</option>
-          <option value="closed-open">Closed at One End</option>
-          <option value="closed-closed">Closed at Both Ends</option>
-        </select>
-      </div>
+      <div id="canvasContainer"></div>
     </div>
     <script src="sketchpipe.js"></script>
   </body>
