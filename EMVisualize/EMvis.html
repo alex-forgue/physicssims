@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>3D Electromagnetic Wave Simulation</title>
+  <!-- Include Three.js and OrbitControls -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <style>
+    body { margin: 0; overflow: hidden; font-family: Arial, sans-serif; }
+    #controls {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 10px;
+      border-radius: 4px;
+      z-index: 100;
+    }
+    #controls label, #controls select, #controls button, #controls input {
+      margin: 5px;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div id="controls">
+    <label for="eAxisSelect">Electric Field Axis:</label>
+    <select id="eAxisSelect">
+      <option value="x">X</option>
+      <option value="y" selected>Y</option>
+      <option value="z">Z</option>
+    </select>
+    <label for="bAxisSelect">Magnetic Field Axis:</label>
+    <select id="bAxisSelect">
+      <!-- Options will update so that B ≠ E -->
+      <option value="x">X</option>
+      <option value="z" selected>Z</option>
+    </select>
+    <button id="toggleVectorArrows">Toggle Vector Arrows</button>
+    <button id="toggleVectorLabels">Toggle Vector Labels</button>
+    <button id="toggleAxes">Toggle Axes</button>
+    <button id="pauseResume">Pause</button>
+    <br>
+    <label>
+      <input type="checkbox" id="highlightEField">
+      Highlight E field
+    </label>
+    <label>
+      <input type="checkbox" id="highlightBField">
+      Highlight B field
+    </label>
+    <br>
+    <label>
+      <input type="checkbox" id="toggleEWave" checked>
+      Show E Field Wave
+    </label>
+    <label>
+      <input type="checkbox" id="toggleBWave" checked>
+      Show B Field Wave
+    </label>
+    <label>
+      <input type="checkbox" id="togglePhotonMotion" checked>
+      Show Photon Motion
+    </label>
+  </div>
+  <div id="container"></div>
+    <script src="EMvis.js"></script></body>
+</html>
