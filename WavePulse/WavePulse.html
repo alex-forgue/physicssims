@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Wave Pulse Simulation</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    #controlPanel {
+      margin-bottom: 20px;
+    }
+    #controlPanel label {
+      margin-right: 10px;
+    }
+    #controlPanel input[type="range"] {
+      vertical-align: middle;
+    }
+    #dataTable {
+      margin-top: 10px;
+      border-collapse: collapse;
+    }
+    #dataTable th, #dataTable td {
+      border: 1px solid #ccc;
+      padding: 5px 10px;
+    }
+    canvas {
+      border: 1px solid #ccc;
+      display: block;
+      margin: 0 auto;
+    }
+    /* Hide the time slider container by default */
+    #timeControl {
+      display: none;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div id="controlPanel">
+    <button id="sendPulseBtn">Send Pulse</button>
+    <button id="sendInvertedPulseBtn">Send Inverted Pulse</button>
+    <button id="pauseBtn">Pause</button>
+    <br><br>
+    <label for="amplitudeSlider">Initial Amplitude:</label>
+    <input type="range" id="amplitudeSlider" min="10" max="100" value="50">
+    <span id="amplitudeValue">50</span>
+    <br><br>
+    <label for="densityASlider">Medium A Density (Red):</label>
+    <input type="range" id="densityASlider" min="0.5" max="5" step="0.1" value="1">
+    <span id="densityAValue">1.0</span>
+    <br><br>
+    <label for="densityBSlider">Medium B Density (Blue):</label>
+    <input type="range" id="densityBSlider" min="0.5" max="5" step="0.1" value="1">
+    <span id="densityBValue">1.0</span>
+    <br><br>
+    <label for="fixedEndCheckbox">Medium B as Fixed End:</label>
+    <input type="checkbox" id="fixedEndCheckbox">
+    <br><br>
+    <div id="timeControl">
+      <label for="timeSlider">Time:</label>
+      <input type="range" id="timeSlider" min="0" max="400" step="1" value="0">
+      <span id="timeValue">0</span>
+    </div>
+  </div>
+
+  <canvas id="simulationCanvas" width="800" height="400"></canvas>
+
+  <table id="dataTable">
+    <tr>
+      <th>Initial Amplitude</th>
+      <th>Reflected Amplitude</th>
+      <th>Transmitted Amplitude</th>
+    </tr>
+    <tr>
+      <td id="initialAmplitudeCell">-</td>
+      <td id="reflectedAmplitudeCell">-</td>
+      <td id="transmittedAmplitudeCell">-</td>
+    </tr>
+  </table>
+
+  <script src="pulse.js"></script>
+</body>
+</html>
