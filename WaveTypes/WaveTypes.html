@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Wave Simulation</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      height: 100vh;
+      font-family: Arial, sans-serif;
+    }
+    /* Left control panel */
+    #control-panel {
+      width: 300px;
+      background-color: #f0f0f0;
+      padding: 20px;
+      box-sizing: border-box;
+      overflow-y: auto;
+    }
+    /* Right canvas container */
+    #canvas-container {
+      flex: 1;
+      position: relative;
+    }
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      background-color: #fff;
+    }
+    .section {
+      margin-bottom: 20px;
+    }
+    .section h3 {
+      margin: 10px 0;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+    }
+    input[type=range] {
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <!-- Control Panel (Left Side) -->
+  <div id="control-panel">
+    <div class="section">
+      <h3>Wave Type</h3>
+      <select id="waveType">
+        <option value="transverse">Transverse</option>
+        <option value="longitudinal">Longitudinal</option>
+      </select>
+    </div>
+    <div class="section">
+      <h3>Display Labels / Graphs</h3>
+      <label><input type="checkbox" id="showWavelength"> Wavelength</label>
+      <label><input type="checkbox" id="showPeriod"> Period</label>
+      <label><input type="checkbox" id="showAmplitude"> Amplitude</label>
+      <label><input type="checkbox" id="showCrest"> Crest</label>
+      <label><input type="checkbox" id="showTrough"> Trough</label>
+      <!-- Now using two separate checkboxes for arrow displays -->
+      <label><input type="checkbox" id="showDisplacementDirection"> Display Displacement Direction</label>
+      <label><input type="checkbox" id="showEnergyTransferDirection"> Display Energy Transfer Direction</label>
+    </div>
+    <div class="section">
+      <h3>Particle Movement</h3>
+      <label><input type="checkbox" id="showParticleMovement" checked> Show Particle Movement</label>
+    </div>
+    <div class="section">
+      <h3>Single Particle</h3>
+      <label><input type="checkbox" id="showOneParticle"> Show one particle</label>
+    </div>
+    <div class="section" id="longitudinal-options">
+      <h3>Longitudinal Options</h3>
+      <label><input type="checkbox" id="showOneArea"> Show one area</label>
+    </div>
+    <div class="section">
+      <h3>Wave Parameters</h3>
+      <label for="amplitude">Amplitude: <span id="amplitudeValue">50</span></label>
+      <input type="range" id="amplitude" min="10" max="100" value="50">
+      <label for="wavelength">Wavelength: <span id="wavelengthValue">100</span></label>
+      <input type="range" id="wavelength" min="50" max="300" value="100">
+      <label for="period">Period (ms): <span id="periodValue">1000</span></label>
+      <input type="range" id="period" min="500" max="3000" value="1000">
+      <label for="frequency">Frequency (Hz): <span id="frequencyValue">1</span></label>
+      <input type="range" id="frequency" min="0.1" max="5" step="0.1" value="1">
+    </div>
+  </div>
+
+  <!-- Canvas Container (Right Side) -->
+  <div id="canvas-container">
+    <canvas id="waveCanvas"></canvas>
+  </div>
+
+  <script src="WaveType.js"></script>
+</body>
+</html>
