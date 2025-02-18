@@ -13,29 +13,27 @@ const densityBSlider = document.getElementById('densityBSlider');
 const densityBValue = document.getElementById('densityBValue');
 const fixedEndCheckbox = document.getElementById('fixedEndCheckbox');
 
+const timeControlDiv = document.getElementById('timeControl');
 const timeSlider = document.getElementById('timeSlider');
 const timeValue = document.getElementById('timeValue');
-const timeControlDiv = document.getElementById('timeControl');
 
 const initialAmplitudeCell = document.getElementById('initialAmplitudeCell');
 const reflectedAmplitudeCell = document.getElementById('reflectedAmplitudeCell');
 const transmittedAmplitudeCell = document.getElementById('transmittedAmplitudeCell');
 
 let pulses = []; 
-// Each pulse is an object with: 
-// x0 (starting x), startTime, amplitude, width, direction, medium, label.
-// The initial pulse also has an eventTriggered flag.
+// Each pulse: { x0, startTime, amplitude, width, direction, medium, label, eventTriggered }
 
 let simulationTime = 0;
-let dt = 1;  // time step per frame (in arbitrary units)
+let dt = 1;  // Time step per frame
 let isPaused = false;
 
 // Canvas and rope settings
-const v = 2;  // Pulse speed (pixels per frame)
+const v = 2;  // Pulse speed (pixels per time unit)
 const baseline = canvas.height / 2;
 const interfaceX = canvas.width / 2;
 
-// Update display values for sliders.
+// Update control panel displays
 amplitudeSlider.addEventListener('input', () => {
   amplitudeValue.textContent = amplitudeSlider.value;
 });
@@ -46,7 +44,7 @@ densityBSlider.addEventListener('input', () => {
   densityBValue.textContent = parseFloat(densityBSlider.value).toFixed(1);
 });
 
-// Update simulationTime when the time slider is moved.
+// When the time slider is moved (while paused), update simulationTime.
 timeSlider.addEventListener('input', () => {
   simulationTime = parseFloat(timeSlider.value);
   timeValue.textContent = simulationTime;
@@ -57,46 +55,53 @@ timeSlider.addEventListener('input', () => {
 pauseBtn.addEventListener('click', () => {
   isPaused = !isPaused;
   pauseBtn.textContent = isPaused ? "Resume" : "Pause";
-  // Show time slider when paused, hide it when resumed.
+  // Show the time slider only when paused.
   timeControlDiv.style.display = isPaused ? "block" : "none";
+  if (!isPaused) {
+    timeSlider.value = simulationTime;
+    timeValue.textContent = simulationTime;
+  }
 });
 
 // Pulse constructor.
 function createPulse(x0, startTime, amplitude, width, direction, medium, label = "") {
   return {
-    x0,            // starting x-position
-    startTime,     // time when the pulse begins moving
+    x0,
+    startTime,
     amplitude,
     width,
-    direction,     // 1 for rightward, -1 for leftward
-    medium,        // "A" or "B"
+    direction,
+    medium,
     label,
-    eventTriggered: false // for the initial pulse only
+    eventTriggered: false
   };
 }
 
-// Reset simulation and send a new initial pulse.
+// Compute the final simulation time based on the pulse travel distances.
+// Reflected pulse: from interfaceX to x=0; Transmitted pulse: from interfaceX to canvas.width.
+function computeFinalTime() {
+  const t_interface = (interfaceX - 50) / v;
+  const T_reflected_end = t_interface + (interfaceX - 0) / v;
+  const T_transmitted_end = t_interface + (canvas.width - interfaceX) / v;
+  return Math.max(T_reflected_end, T_transmitted_end);
+}
+
+// Reset simulation state and send a new initial pulse.
 function sendInitialPulse(sign = 1) {
   simulationTime = 0;
   timeSlider.value = 0;
   timeValue.textContent = 0;
   pulses = [];
+  
+  // Compute final simulation time and set slider max.
+  const T_final = computeFinalTime();
+  timeSlider.max = T_final;
+  
   initialAmplitudeCell.textContent = (sign * amplitudeSlider.value).toFixed(2);
   reflectedAmplitudeCell.textContent = "-";
   transmittedAmplitudeCell.textContent = "-";
   
-  // Set the time slider range.
-  // The initial pulse starts at x=50. It reaches the interface (x=canvas.width/2) at:
-  // t_interface = (interfaceX - 50)/v.
-  // Then, both the reflected and transmitted pulses take (canvas.width/2 + 50)/v to leave the canvas.
-  // Thus, maxTime = t_interface + (canvas.width/2 + 50)/v.
-  const t_interface = (interfaceX - 50) / v;
-  const extraTime = (canvas.width/2 + 50) / v;
-  const maxTime = t_interface + extraTime;
-  timeSlider.min = 0;
-  timeSlider.max = maxTime;
-  
-  // Create the initial pulse in Medium A starting at x = 50.
+  // Create initial pulse in Medium A starting at x = 50.
   const amplitude = sign * parseFloat(amplitudeSlider.value);
   const initialPulse = createPulse(50, 0, amplitude, 40, 1, "A", "Initial");
   pulses.push(initialPulse);
@@ -109,7 +114,7 @@ sendInvertedPulseBtn.addEventListener('click', () => {
   sendInitialPulse(-1);
 });
 
-// Compute the current x-position of a pulse.
+// Compute current x-position of a pulse based on simulationTime.
 function getPulseX(pulse) {
   if (simulationTime < pulse.startTime) return pulse.x0;
   return pulse.x0 + pulse.direction * v * (simulationTime - pulse.startTime);
@@ -126,39 +131,45 @@ function updateInterfaceEvent() {
   const fixedEnd = fixedEndCheckbox.checked;
   
   if (simulationTime >= t_interface && !initialPulse.eventTriggered) {
-    const A0 = Math.abs(initialPulse.amplitude);
     let R = 0, T = 0;
-    let r = Math.abs(densityA - densityB) / (densityA + densityB);
-    
-    if (initialPulse.amplitude >= 0) {
-      if (densityB > densityA) {
-        R = -initialPulse.amplitude * r;
-      } else {
-        R = initialPulse.amplitude * r;
-      }
-      T = initialPulse.amplitude - Math.abs(R);
+    if (fixedEnd) {
+      // For a fixed end, the reflected pulse has the same amplitude inverted.
+      R = -initialPulse.amplitude;
+      T = 0;
     } else {
-      if (densityA > densityB) {
-        R = initialPulse.amplitude * r;
+      // Use the previous rules.
+      let r = Math.abs(densityA - densityB) / (densityA + densityB);
+      if (initialPulse.amplitude >= 0) {
+        if (densityB > densityA) {
+          R = -initialPulse.amplitude * r;
+        } else {
+          R = initialPulse.amplitude * r;
+        }
+        T = initialPulse.amplitude - Math.abs(R);
       } else {
-        R = -initialPulse.amplitude * r;
+        if (densityA > densityB) {
+          R = initialPulse.amplitude * r;
+        } else {
+          R = -initialPulse.amplitude * r;
+        }
+        T = initialPulse.amplitude + Math.abs(R);
       }
-      T = initialPulse.amplitude + Math.abs(R);
     }
     
+    // Create reflected pulse in Medium A (moving left).
     const reflectedPulse = createPulse(interfaceX, t_interface, R, initialPulse.width, -1, "A", "Reflected");
     pulses.push(reflectedPulse);
+    // Create transmitted pulse only if not a fixed end.
     if (!fixedEnd && T !== 0) {
       const transmittedPulse = createPulse(interfaceX, t_interface, T, initialPulse.width, 1, "B", "Transmitted");
       pulses.push(transmittedPulse);
     }
     initialPulse.eventTriggered = true;
-    
     reflectedAmplitudeCell.textContent = R.toFixed(2);
     transmittedAmplitudeCell.textContent = T.toFixed(2);
   }
   
-  // If scrubbing back in time before the interface event, remove the event pulses.
+  // If scrubbing back before the interface event, remove the event pulses.
   if (simulationTime < t_interface && initialPulse.eventTriggered) {
     pulses = pulses.filter(p => p.label === "Initial");
     initialPulse.eventTriggered = false;
@@ -184,18 +195,12 @@ function drawRopeBaseline() {
   
   const densityB = parseFloat(densityBSlider.value);
   if (fixedEndCheckbox.checked) {
+    // Draw only the fixed wall.
     ctx.beginPath();
     ctx.strokeStyle = "black";
     ctx.lineWidth = 4;
     ctx.moveTo(interfaceX, baseline - 50);
     ctx.lineTo(interfaceX, baseline + 50);
-    ctx.stroke();
-    
-    ctx.beginPath();
-    ctx.strokeStyle = "blue";
-    ctx.lineWidth = densityB * 2;
-    ctx.moveTo(interfaceX, baseline);
-    ctx.lineTo(canvas.width, baseline);
     ctx.stroke();
   } else {
     ctx.beginPath();
@@ -207,7 +212,7 @@ function drawRopeBaseline() {
   }
 }
 
-// Draw the rope’s waveform by summing contributions from all pulses.
+// Draw the rope's waveform.
 function drawRopeWave() {
   const points = [];
   const dx = 2;
@@ -235,7 +240,7 @@ function drawRopeWave() {
   ctx.stroke();
 }
 
-// Draw labels for each pulse.
+// Draw labels near each pulse's peak.
 function drawPulseLabels() {
   ctx.font = "12px Arial";
   ctx.fillStyle = "black";
