@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Beat Frequency Simulation</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    #container {
+      display: flex;
+      flex-direction: row;
+    }
+    #controls {
+      flex: 0 0 300px;
+      margin-right: 20px;
+    }
+    #controls > div {
+      margin-bottom: 20px;
+    }
+    label {
+      margin-right: 10px;
+    }
+    input[type="range"] {
+      width: 100%;
+    }
+    /* Style the frequency sliders with accent colors */
+    #freqA {
+      accent-color: red;
+    }
+    #freqB {
+      accent-color: blue;
+    }
+    #animation {
+      flex: 1;
+    }
+    canvas {
+      border: 1px solid #ccc;
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    table {
+      border-collapse: collapse;
+      margin-top: 10px;
+      width: 100%;
+    }
+    table, th, td {
+      border: 1px solid black;
+      padding: 5px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>Beat Frequency Simulation</h1>
+  <div id="container">
+    <div id="controls">
+      <div>
+        <label for="freqA">
+          Frequency Wave A (Hz):
+          <span id="freqAValue">440</span>
+        </label>
+        <input type="range" id="freqA" min="100" max="1000" value="440" />
+      </div>
+      <div>
+        <label for="freqB">
+          Frequency Wave B (Hz):
+          <span id="freqBValue">444</span>
+        </label>
+        <input type="range" id="freqB" min="100" max="1000" value="444" />
+      </div>
+      <div>
+        <label>
+          <input type="checkbox" id="toggleWaves" checked />
+          Show individual waves (red &amp; blue)
+        </label>
+      </div>
+      <div>
+        <label>
+          <input type="checkbox" id="restrictDiff" />
+          Restrict Frequency Difference to Audible Range (max 12 Hz)
+        </label>
+      </div>
+      <div>
+        <button id="playAudio">Play Beat Sound</button>
+        <button id="stopAudio">Stop Sound</button>
+      </div>
+      <div>
+        <button id="pauseAnimation">Pause Animation</button>
+      </div>
+      <div id="timeControl" style="display: none;">
+        <label for="timeSlider">
+          Time:
+          <span id="timeValue">0.00</span> s
+        </label>
+        <input type="range" id="timeSlider" min="0" max="10" step="0.01" value="0" />
+      </div>
+      <div id="dataTable">
+        <h2>Data Table</h2>
+        <table>
+          <tr>
+            <th>Frequency of Wave A (Hz)</th>
+            <th>Frequency of Wave B (Hz)</th>
+            <th>Beat Frequency (Hz)</th>
+          </tr>
+          <tr>
+            <td id="dataFreqA">440</td>
+            <td id="dataFreqB">444</td>
+            <td id="dataBeat">4.00</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <div id="animation">
+      <canvas id="waveCanvas" width="800" height="400"></canvas>
+    </div>
+  </div>
+  <script src="beats.js"></script>
+</body>
+</html>
