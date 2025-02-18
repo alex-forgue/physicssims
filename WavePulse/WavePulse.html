@@ -78,6 +78,22 @@
       background: blue;
       cursor: pointer;
     }
+    /* Initial Speed slider: green */
+    #speedSlider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: green;
+      cursor: pointer;
+    }
+    #speedSlider::-moz-range-thumb {
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: green;
+      cursor: pointer;
+    }
     /* Data table styling */
     #dataTable {
       margin-top: 10px;
@@ -113,6 +129,10 @@
         <input type="range" id="amplitudeSlider" min="10" max="100" value="50">
         <span id="amplitudeValue">50</span>
         <br><br>
+        <label for="speedSlider">Initial Pulse Speed:</label>
+        <input type="range" id="speedSlider" min="1" max="10" step="0.5" value="2">
+        <span id="speedValue">2</span>
+        <br><br>
         <label for="densityASlider">Medium A Density (Red):</label>
         <input type="range" id="densityASlider" min="0.5" max="5" step="0.1" value="1">
         <span id="densityAValue">1.0</span>
@@ -141,6 +161,16 @@
           <td id="initialAmplitudeCell">-</td>
           <td id="reflectedAmplitudeCell">-</td>
           <td id="transmittedAmplitudeCell">-</td>
+        </tr>
+        <tr>
+          <th>Initial Speed</th>
+          <th>Reflected Speed</th>
+          <th>Transmitted Speed</th>
+        </tr>
+        <tr>
+          <td id="initialSpeedCell">-</td>
+          <td id="reflectedSpeedCell">-</td>
+          <td id="transmittedSpeedCell">-</td>
         </tr>
       </table>
     </div>
