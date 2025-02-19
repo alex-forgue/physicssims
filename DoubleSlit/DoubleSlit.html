@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Double Slit Interference Simulation</title>
+  <style>
+    body { font-family: sans-serif; margin: 0; padding: 0; }
+    #container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    #topSection {
+      display: flex;
+      flex-grow: 1;
+    }
+    #controls {
+      width: 250px;
+      padding: 20px;
+      box-sizing: border-box;
+      background: #f4f4f4;
+      overflow-y: auto;
+      border-right: 1px solid #ccc;
+    }
+    .control-group { margin: 10px 0; }
+    #simulationArea {
+      flex-grow: 1;
+      position: relative;
+      background: #fff;
+    }
+    canvas { 
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    #intensityCurveBox {
+      margin: 10px 20px 20px 20px;
+      border: 1px solid #ccc;
+      background: #eee;
+    }
+    label { margin-right: 10px; }
+    input[type="range"], input[type="number"] { width: 100%; }
+    button { width: 100%; padding: 10px; }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <div id="topSection">
+      <div id="controls">
+        <h2>Controls</h2>
+        <div class="control-group">
+          <label for="wavelength">Wavelength (nm): <span id="wavelengthDisplay">550</span></label>
+          <input type="range" id="wavelength" min="380" max="750" value="550">
+        </div>
+        <div class="control-group">
+          <label for="slitSeparation">Slit Separation (µm): <span id="slitSeparationDisplay">50</span></label>
+          <input type="range" id="slitSeparation" min="10" max="100" value="50">
+        </div>
+        <div class="control-group">
+          <label for="screenDistance">Screen Distance (m): <span id="screenDistanceDisplay">1.0</span></label>
+          <input type="range" id="screenDistance" min="0.5" max="3.0" step="0.1" value="1.0">
+        </div>
+        <div class="control-group">
+          <input type="checkbox" id="toggleWaveFronts" checked>
+          <label for="toggleWaveFronts">Show Wave Fronts</label>
+        </div>
+        <div class="control-group">
+          <input type="checkbox" id="toggleInterferencePattern" checked>
+          <label for="toggleInterferencePattern">Show Interference Pattern</label>
+        </div>
+        <div class="control-group">
+          <input type="checkbox" id="toggleMaxima" checked>
+          <label for="toggleMaxima">Show Maxima</label>
+        </div>
+        <div class="control-group">
+          <input type="checkbox" id="toggleMinima">
+          <label for="toggleMinima">Show Minima</label>
+        </div>
+        <div class="control-group">
+          <input type="checkbox" id="toggleFringeSpacing">
+          <label for="toggleFringeSpacing">Show Fringe Spacing</label>
+        </div>
+        <div class="control-group">
+          <input type="checkbox" id="toggleOrders">
+          <label for="toggleOrders">Show Orders of Interference</label>
+          <label for="orderCount"># Orders (0-5):</label>
+          <input type="number" id="orderCount" min="0" max="5" value="3">
+        </div>
+        <div class="control-group">
+          <input type="checkbox" id="toggleConstructivePath">
+          <label for="toggleConstructivePath">Show Constructive Path</label>
+        </div>
+        <div class="control-group">
+          <input type="checkbox" id="toggleIntersectionDots">
+          <label for="toggleIntersectionDots">Show Wavefront Intersection Dots</label>
+        </div>
+        <div class="control-group">
+          <input type="checkbox" id="toggleOnePathDiff">
+          <label for="toggleOnePathDiff">Highlight One Path Difference</label>
+        </div>
+        <div class="control-group">
+          <input type="checkbox" id="toggleHalfPathDiff">
+          <label for="toggleHalfPathDiff">Highlight 1/2 Path Difference</label>
+        </div>
+        <!-- New control for intensity distribution curve -->
+        <div class="control-group">
+          <input type="checkbox" id="toggleIntensityCurve">
+          <label for="toggleIntensityCurve">Show Intensity Distribution Curve</label>
+        </div>
+        <div class="control-group">
+          <button id="toggleAnimation">Pause</button>
+        </div>
+      </div>
+      <div id="simulationArea">
+        <canvas id="simulationCanvas" width="800" height="400"></canvas>
+      </div>
+    </div>
+    <!-- Intensity distribution curve box (initially hidden) -->
+    <div id="intensityCurveBox" style="display: none;">
+      <canvas id="intensityCanvas" width="800" height="400"></canvas>
+    </div>
+  </div>
+<script src="diffraction.js"></script>
+</body>
+</html>
