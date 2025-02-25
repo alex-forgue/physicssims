@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Properties of Sound Waves Exploration</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 20px;
+    }
+    #controls {
+      margin-bottom: 20px;
+    }
+    canvas {
+      border: 1px solid #ccc;
+      display: block;
+      margin-top: 20px;
+    }
+    .slider-label {
+      margin-bottom: 10px;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <h2>Sound Wave Simulation</h2>
+  <div id="controls">
+    <label class="slider-label">
+      Volume:
+      <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.5">
+    </label>
+    <label class="slider-label">
+      Pitch (Frequency in Hz):
+      <input type="range" id="pitchSlider" min="100" max="1000" step="1" value="440">
+      <span id="frequencyDisplay">440</span> Hz
+    </label>
+    <label class="slider-label">
+      Play Sound:
+      <input type="checkbox" id="playCheckbox">
+    </label>
+  </div>
+  
+  <canvas id="waveCanvas" width="800" height="200"></canvas>
+
+  <script src="soundwave.js"></script>
+</body>
+</html>
